@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState, type SubmitEvent } from 'react'
 import type { Credentials } from '../api/greenApi.types'
-import { errorMessage, verifyCredentials } from '../api/greenApi'
+import {
+    DEFAULT_API_URL,
+    errorMessage,
+    verifyCredentials,
+    setNotificationSettings,
+    waitForNotificationSettings,
+} from '../api/greenApi'
 import { normalizeApiUrl } from '../utils/validation'
 import styles from './Chat.module.css'
 
@@ -10,7 +16,10 @@ export function CredentialsForm({
     onConnect: (credentials: Credentials) => void
 }) {
     const [error, setError] = useState<string | null>(null)
-    const [isConnecting, setIsConnecting] = useState(false)
+    const [connectionStage, setConnectionStage] = useState<
+        'idle' | 'checking' | 'settings' | 'waiting'
+    >('idle')
+    const isConnecting = connectionStage !== 'idle'
     const request = useRef<AbortController | null>(null)
     useEffect(() => () => request.current?.abort(), [])
 
@@ -20,11 +29,13 @@ export function CredentialsForm({
         const form = new FormData(event.currentTarget)
         const controller = new AbortController()
         request.current = controller
-        setIsConnecting(true)
+        setConnectionStage('checking')
         setError(null)
         try {
             const credentials: Credentials = {
-                apiUrl: normalizeApiUrl(String(form.get('apiUrl') ?? '')),
+                apiUrl: normalizeApiUrl(
+                    String(form.get('apiUrl') ?? '').trim() || DEFAULT_API_URL,
+                ),
                 idInstance: String(form.get('idInstance') ?? '').trim(),
                 apiTokenInstance: String(
                     form.get('apiTokenInstance') ?? '',
@@ -39,11 +50,22 @@ export function CredentialsForm({
                     'Проверьте idInstance и apiTokenInstance: пробелы не допускаются.',
                 )
             await verifyCredentials(credentials, controller.signal)
+            if (controller.signal.aborted) return
+            if (form.has('configureNotifications')) {
+                setConnectionStage('settings')
+                await setNotificationSettings(credentials, controller.signal)
+                if (controller.signal.aborted) return
+                setConnectionStage('waiting')
+                await waitForNotificationSettings(
+                    credentials,
+                    controller.signal,
+                )
+            }
             if (!controller.signal.aborted) onConnect(credentials)
         } catch (error) {
             if (!controller.signal.aborted) setError(errorMessage(error))
         } finally {
-            if (!controller.signal.aborted) setIsConnecting(false)
+            if (!controller.signal.aborted) setConnectionStage('idle')
             if (request.current === controller) request.current = null
         }
     }
@@ -60,18 +82,6 @@ export function CredentialsForm({
                     Подключите свой аккаунт Telegram и начните переписку.
                 </p>
                 <form className={styles.form} onSubmit={handleSubmit}>
-                    <label>
-                        apiUrl
-                        <input
-                            name="apiUrl"
-                            type="url"
-                            placeholder="https://…green-api.com"
-                            required
-                            disabled={isConnecting}
-                            autoComplete="off"
-                            spellCheck={false}
-                        />
-                    </label>
                     <label>
                         idInstance
                         <input
@@ -93,16 +103,54 @@ export function CredentialsForm({
                             autoComplete="off"
                         />
                     </label>
+                    <details className={styles.setup}>
+                        <summary>Дополнительные настройки</summary>
+                        <label>
+                            apiUrl (необязательно)
+                            <input
+                                name="apiUrl"
+                                type="url"
+                                placeholder={DEFAULT_API_URL}
+                                disabled={isConnecting}
+                                autoComplete="off"
+                                spellCheck={false}
+                                aria-describedby="api-url-hint"
+                            />
+                        </label>
+                        <p id="api-url-hint">
+                            Укажите адрес из личного кабинета, только если он
+                            отличается от сервера по умолчанию.
+                        </p>
+                    </details>
+                    <label className={styles.checkboxLabel}>
+                        <input
+                            type="checkbox"
+                            name="configureNotifications"
+                            disabled={isConnecting}
+                        />
+                        Установить настройки для получения сообщения
+                    </label>
                     {error && (
                         <p role="alert" className={styles.error}>
                             {error}
                         </p>
                     )}
                     <button className={styles.primary} disabled={isConnecting}>
-                        {isConnecting
-                            ? 'Проверяем подключение…'
-                            : 'Подключиться →'}
+                        {
+                            {
+                                idle: 'Подключиться →',
+                                checking: 'Проверяем подключение…',
+                                settings: 'Настраиваем уведомления…',
+                                waiting: 'Ожидаем готовности…',
+                            }[connectionStage]
+                        }
                     </button>
+                    {connectionStage === 'waiting' && (
+                        <p role="status" className={styles.hint}>
+                            Настройки сохранены. Инстанс перезапускается;
+                            подключение может занять до 5 минут.
+                        </p>
+                    )}
                 </form>
                 <p className={styles.hint}>
                     Реквизиты доступны в{' '}
@@ -118,10 +166,10 @@ export function CredentialsForm({
                 <details className={styles.setup}>
                     <summary>Как подготовить инстанс</summary>
                     <p>
-                        Авторизуйте Telegram в личном кабинете. В настройках
-                        включите входящие уведомления (incomingWebhook) и
-                        очистите webhookUrl. Используйте инстанс только в одной
-                        вкладке этого чата.
+                        Авторизуйте Telegram в личном кабинете. Чтобы включить
+                        уведомления и очистить webhookUrl, отметьте чекбокс
+                        установки настроек. Без него текущие настройки инстанса
+                        сохраняются. Используйте инстанс только в одной вкладке.
                     </p>
                 </details>
             </section>

@@ -1,6 +1,10 @@
+// Default host used by the official GREEN-API Telegram SDK.
+export const DEFAULT_API_URL = 'https://4100.api.green-api.com'
+
 import type {
     Credentials,
     Notification,
+    NotificationSettings,
     SendMessageRequest,
     SendMessageResponse,
 } from './greenApi.types'
@@ -164,4 +168,88 @@ export async function deleteNotification(
         throw new ApiError(
             'Не удалось подтвердить обработку уведомления. Проверьте, что инстанс не используется в другой вкладке.',
         )
+}
+
+const notificationSettings: NotificationSettings = {
+    webhookUrl: '',
+    outgoingWebhook: 'yes',
+    stateWebhook: 'yes',
+    incomingWebhook: 'yes',
+}
+
+export async function setNotificationSettings(
+    credentials: Credentials,
+    signal: AbortSignal,
+): Promise<void> {
+    const response = await request(credentials, 'setSettings', signal, {
+        body: notificationSettings,
+    })
+    if (!isRecord(response) || response.saveSettings !== true)
+        throw new ApiError('Не удалось сохранить настройки уведомлений.')
+}
+
+function waitForRetry(signal: AbortSignal): Promise<void> {
+    signal.throwIfAborted()
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            signal.removeEventListener('abort', abort)
+            resolve()
+        }, 5_000)
+        function abort() {
+            clearTimeout(timer)
+            reject(signal.reason)
+        }
+        signal.addEventListener('abort', abort, { once: true })
+    })
+}
+
+export async function waitForNotificationSettings(
+    credentials: Credentials,
+    signal: AbortSignal,
+): Promise<void> {
+    // SetSettings restarts the instance; saving does not mean it is ready yet.
+    const readinessSignal = AbortSignal.any([
+        signal,
+        AbortSignal.timeout(300_000),
+    ])
+    try {
+        while (true) {
+            await waitForRetry(readinessSignal)
+            try {
+                const settings = await request(
+                    credentials,
+                    'getSettings',
+                    readinessSignal,
+                )
+                if (
+                    !isRecord(settings) ||
+                    !Object.entries(notificationSettings).every(
+                        ([key, value]) => settings[key] === value,
+                    )
+                )
+                    continue
+                const state = await request(
+                    credentials,
+                    'getStateInstance',
+                    readinessSignal,
+                )
+                if (isRecord(state) && state.stateInstance === 'authorized')
+                    return
+            } catch (error) {
+                if (readinessSignal.aborted) throw error
+                if (
+                    !(error instanceof ApiError) ||
+                    [400, 401, 403, 404].includes(error.status)
+                )
+                    throw error
+            }
+        }
+    } catch (error) {
+        if (signal.aborted) throw error
+        if (readinessSignal.aborted)
+            throw new ApiError(
+                'Настройки сохранены, но инстанс не готов в течение 5 минут. Проверьте его состояние в личном кабинете и попробуйте подключиться позже.',
+            )
+        throw error
+    }
 }

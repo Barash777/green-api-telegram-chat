@@ -17,3 +17,10 @@ export interface Notification {
     receiptId: number
     body: unknown
 }
+
+export interface NotificationSettings {
+    webhookUrl: string
+    outgoingWebhook: 'yes' | 'no'
+    stateWebhook: 'yes' | 'no'
+    incomingWebhook: 'yes' | 'no'
+}

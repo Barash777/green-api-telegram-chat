@@ -414,3 +414,19 @@
         padding: 26px;
     }
 }
+
+.form .checkboxLabel {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+    cursor: pointer;
+}
+.checkboxLabel input {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin: 1px 0 0;
+    padding: 0;
+    accent-color: var(--accent);
+}
