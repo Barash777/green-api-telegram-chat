@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import {
     setNotificationSettings,
     waitForNotificationSettings,
-} from './greenApi'
+} from '../../src/api/greenApi'
 
 const credentials = {
     apiUrl: 'https://test.green-api.com',

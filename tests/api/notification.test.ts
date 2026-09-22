@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mapIncomingMessage } from './notification'
+import { mapIncomingMessage } from '../../src/api/notification'
 
 const incoming = {
     typeWebhook: 'incomingMessageReceived',

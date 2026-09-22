@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { normalizeApiUrl, normalizePhone } from './validation'
+import { normalizeApiUrl, normalizePhone } from '../../src/utils/validation'
 
 it('normalizes readable international numbers without accepting arbitrary text', () => {
     expect(normalizePhone('+1 (234) 567-89-01')).toBe('12345678901')

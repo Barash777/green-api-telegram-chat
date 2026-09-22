@@ -2,11 +2,11 @@
 import { act, StrictMode, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { useMessages } from '../hooks/useMessages'
-import { ChatWorkspace } from './ChatWorkspace'
-import type { Message } from '../types/message'
+import { useMessages } from '../../src/hooks/useMessages'
+import { ChatWorkspace } from '../../src/components/ChatWorkspace'
+import type { Message } from '../../src/types/message'
 
-vi.mock('../hooks/useMessages')
+vi.mock('../../src/hooks/useMessages')
 
 const credentials = {
     apiUrl: 'https://test.green-api.com',

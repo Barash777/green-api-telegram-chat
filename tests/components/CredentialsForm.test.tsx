@@ -2,15 +2,15 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { CredentialsForm } from './CredentialsForm'
+import { CredentialsForm } from '../../src/components/CredentialsForm'
 import {
     verifyCredentials,
     setNotificationSettings,
     waitForNotificationSettings,
-} from '../api/greenApi'
+} from '../../src/api/greenApi'
 
-vi.mock('../api/greenApi', async (importOriginal) => ({
-    ...(await importOriginal<typeof import('../api/greenApi')>()),
+vi.mock('../../src/api/greenApi', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('../../src/api/greenApi')>()),
     verifyCredentials: vi.fn().mockResolvedValue(undefined),
     setNotificationSettings: vi.fn().mockResolvedValue(undefined),
     waitForNotificationSettings: vi.fn().mockResolvedValue(undefined),

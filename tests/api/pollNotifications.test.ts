@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { pollNotifications } from './pollNotifications'
-import { ApiError, deleteNotification, receiveNotification } from './greenApi'
+import { pollNotifications } from '../../src/api/pollNotifications'
+import {
+    ApiError,
+    deleteNotification,
+    receiveNotification,
+} from '../../src/api/greenApi'
 
-vi.mock('./greenApi', async (importOriginal) => ({
-    ...(await importOriginal<typeof import('./greenApi')>()),
+vi.mock('../../src/api/greenApi', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('../../src/api/greenApi')>()),
     receiveNotification: vi.fn(),
     deleteNotification: vi.fn(),
 }))
