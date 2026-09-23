@@ -67,12 +67,15 @@
     .workspace {
         grid-template-columns: 1fr;
     }
+
     .conversation {
         display: none;
     }
+
     .hasChat .conversation {
         display: flex;
     }
+
     .hasChat .sidebar {
         display: none;
     }

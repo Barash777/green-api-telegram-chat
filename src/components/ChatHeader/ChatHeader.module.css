@@ -41,10 +41,12 @@
     .back {
         display: block;
     }
+
     .chatHeader {
         padding: 16px;
         min-height: 76px;
     }
+
     .badge {
         display: none;
     }

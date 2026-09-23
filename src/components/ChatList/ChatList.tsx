@@ -1,4 +1,5 @@
 import type { Chat, Message } from '../../types/message.types'
+
 import styles from './ChatList.module.css'
 import shared from '../shared.module.css'
 
@@ -18,9 +19,11 @@ export function ChatList({
     return (
         <nav className={styles.chatList} aria-label="Переписки">
             <p className={shared.eyebrow}>ВАШИ СООБЩЕНИЯ</p>
+
             {chats.length === 0 && (
                 <p className={shared.hint}>Здесь появятся ваши разговоры.</p>
             )}
+
             {chats.map((item) => (
                 <button
                     key={item.id}
@@ -31,8 +34,10 @@ export function ChatList({
                     <span className={styles.avatar} aria-hidden="true">
                         {item.title.slice(0, 1)}
                     </span>
+
                     <span>
                         <strong>{item.title}</strong>
+
                         <small>
                             {messages.findLast(
                                 (message) => message.chatId === item.id,

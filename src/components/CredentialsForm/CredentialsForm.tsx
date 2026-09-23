@@ -1,7 +1,10 @@
 import type { SubmitEvent } from 'react'
-import type { Credentials } from '../../types/greenApi.types'
+
 import { DEFAULT_API_URL } from '../../api/greenApi'
 import { useConnection } from '../../hooks/useConnection'
+
+import type { Credentials } from '../../types/greenApi.types'
+
 import styles from './CredentialsForm.module.css'
 import shared from '../shared.module.css'
 
@@ -12,9 +15,12 @@ interface CredentialsFormProps {
 export function CredentialsForm({ onConnect }: CredentialsFormProps) {
     const { error, connectionStage, isConnecting, connect } =
         useConnection(onConnect)
+
     async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
+
         const form = new FormData(event.currentTarget)
+
         await connect(
             {
                 apiUrl:
@@ -35,11 +41,14 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                 >
                     ↗
                 </div>
+
                 <p className={shared.eyebrow}>GREEN-API / TELEGRAM</p>
                 <h1>Ближе к общению.</h1>
+
                 <p className={shared.muted}>
                     Подключите свой аккаунт Telegram и начните переписку.
                 </p>
+
                 <form className={styles.form} onSubmit={handleSubmit}>
                     <label>
                         idInstance
@@ -52,6 +61,7 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                             autoComplete="off"
                         />
                     </label>
+
                     <label>
                         apiTokenInstance
                         <input
@@ -62,8 +72,10 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                             autoComplete="off"
                         />
                     </label>
+
                     <details className={styles.setup}>
                         <summary>Дополнительные настройки</summary>
+
                         <label>
                             apiUrl (необязательно)
                             <input
@@ -76,11 +88,13 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                                 aria-describedby="api-url-hint"
                             />
                         </label>
+
                         <p id="api-url-hint">
                             Укажите адрес из личного кабинета, только если он
                             отличается от сервера по умолчанию.
                         </p>
                     </details>
+
                     <label className={styles.checkboxLabel}>
                         <input
                             type="checkbox"
@@ -89,11 +103,13 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                         />
                         Установить настройки для получения сообщения
                     </label>
+
                     {error && (
                         <p role="alert" className={shared.error}>
                             {error}
                         </p>
                     )}
+
                     <button className={shared.primary} disabled={isConnecting}>
                         {
                             {
@@ -104,6 +120,7 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                             }[connectionStage]
                         }
                     </button>
+
                     {connectionStage === 'waiting' && (
                         <p role="status" className={shared.hint}>
                             Настройки сохранены. Инстанс перезапускается;
@@ -111,6 +128,7 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                         </p>
                     )}
                 </form>
+
                 <p className={shared.hint}>
                     Реквизиты доступны в{' '}
                     <a
@@ -122,8 +140,10 @@ export function CredentialsForm({ onConnect }: CredentialsFormProps) {
                     </a>
                     . Они хранятся только в памяти этой страницы.
                 </p>
+
                 <details className={styles.setup}>
                     <summary>Как подготовить инстанс</summary>
+
                     <p>
                         Авторизуйте Telegram в личном кабинете. Чтобы включить
                         уведомления и очистить webhookUrl, отметьте чекбокс

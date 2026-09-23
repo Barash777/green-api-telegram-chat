@@ -1,20 +1,25 @@
-import type { Chat, Message } from '../types/message.types'
 import { ApiError, isRecord } from './greenApi'
+
+import type { Chat, Message } from '../types/message.types'
 
 export function mapIncomingMessage(
     body: unknown,
 ): { chat: Chat; message: Message } | null {
     if (!isRecord(body) || body.typeWebhook !== 'incomingMessageReceived')
         return null
+
     const sender = body.senderData
     const content = body.messageData
+
     if (!isRecord(content))
         throw new ApiError('В уведомлении отсутствует содержимое сообщения.')
+
     if (
         content.typeMessage !== 'textMessage' &&
         content.typeMessage !== 'extendedTextMessage'
     )
         return null
+
     const text =
         content.typeMessage === 'textMessage'
             ? isRecord(content.textMessageData)
@@ -23,6 +28,7 @@ export function mapIncomingMessage(
             : isRecord(content.extendedTextMessageData)
               ? content.extendedTextMessageData.text
               : undefined
+
     if (
         !isRecord(sender) ||
         typeof sender.chatId !== 'string' ||
@@ -39,6 +45,7 @@ export function mapIncomingMessage(
             'Не удалось прочитать текстовое уведомление. Оно сохранено в очереди.',
         )
     }
+
     return {
         chat: {
             id: sender.chatId,

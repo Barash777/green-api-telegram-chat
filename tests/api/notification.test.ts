@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { mapIncomingMessage } from '../../src/api/notification'
 
 const incoming = {

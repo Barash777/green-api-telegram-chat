@@ -5,14 +5,17 @@ export function normalizePhone(input: string): string {
         .trim()
         .replace(/[\s()-]/g, '')
         .replace(/^\+/, '')
+
     if (!/^[1-9]\d{6,14}$/.test(phone)) {
         throw new Error('Введите номер с кодом страны: от 7 до 15 цифр.')
     }
+
     return phone
 }
 
 export function normalizeApiUrl(input: string): string {
     let url: URL
+
     try {
         url = new URL(input.trim())
     } catch {
@@ -20,6 +23,7 @@ export function normalizeApiUrl(input: string): string {
             'Скопируйте полный apiUrl из личного кабинета GREEN-API.',
         )
     }
+
     if (
         url.protocol !== 'https:' ||
         !(
@@ -37,6 +41,7 @@ export function normalizeApiUrl(input: string): string {
             'apiUrl должен быть HTTPS-адресом сервера green-api.com без пути и параметров.',
         )
     }
+
     return url.origin
 }
 
@@ -46,6 +51,7 @@ export function normalizeCredentials(input: Credentials): Credentials {
         idInstance: input.idInstance.trim(),
         apiTokenInstance: input.apiTokenInstance.trim(),
     }
+
     if (
         !/^\d+$/.test(credentials.idInstance) ||
         !credentials.apiTokenInstance ||
@@ -55,5 +61,6 @@ export function normalizeCredentials(input: Credentials): Credentials {
             'Проверьте idInstance и apiTokenInstance: пробелы не допускаются.',
         )
     }
+
     return credentials
 }

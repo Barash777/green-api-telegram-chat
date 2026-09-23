@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
 import {
     checkAccount,
     deleteNotification,
@@ -6,6 +7,7 @@ import {
     sendMessage,
     verifyCredentials,
 } from '../../src/api/greenApi'
+
 import type { Credentials } from '../../src/types/greenApi.types'
 
 const credentials: Credentials = {
@@ -13,7 +15,9 @@ const credentials: Credentials = {
     idInstance: '0',
     apiTokenInstance: 'test-token-not-real',
 }
+
 const signal = new AbortController().signal
+
 afterEach(() => vi.unstubAllGlobals())
 
 describe('GREEN-API contract', () => {
@@ -22,8 +26,11 @@ describe('GREEN-API contract', () => {
             .fn()
             .mockResolvedValueOnce(Response.json({ exist: true, chatId: '42' }))
             .mockResolvedValueOnce(Response.json({ idMessage: 'message-1' }))
+
         vi.stubGlobal('fetch', fetchMock)
+
         const chatId = await checkAccount(credentials, '12345678901', signal)
+
         expect(
             await sendMessage(
                 credentials,
@@ -53,6 +60,7 @@ describe('GREEN-API contract', () => {
                 .mockResolvedValueOnce(new Response(''))
                 .mockResolvedValueOnce(Response.json(null)),
         )
+
         expect(await receiveNotification(credentials, signal)).toBeNull()
         expect(await receiveNotification(credentials, signal)).toBeNull()
     })
@@ -61,7 +69,9 @@ describe('GREEN-API contract', () => {
         const fetchMock = vi
             .fn()
             .mockResolvedValue(Response.json({ result: false }))
+
         vi.stubGlobal('fetch', fetchMock)
+
         await expect(
             deleteNotification(credentials, 7, signal),
         ).rejects.toThrow('Не удалось подтвердить')
@@ -81,6 +91,7 @@ describe('GREEN-API contract', () => {
                 )
                 .mockResolvedValueOnce(Response.json({ exist: false })),
         )
+
         await expect(verifyCredentials(credentials, signal)).rejects.toThrow(
             'Инстанс не готов',
         )
@@ -101,6 +112,7 @@ describe('GREEN-API contract', () => {
                     new Error('fetch failed: sensitive request URL'),
                 ),
         )
+
         await expect(verifyCredentials(credentials, signal)).rejects.toThrow(
             'Проверьте idInstance и apiTokenInstance.',
         )
@@ -119,6 +131,7 @@ describe('GREEN-API contract', () => {
                     Response.json({ receiptId: '7', body: {} }),
                 ),
         )
+
         await expect(
             sendMessage(
                 credentials,

@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Credentials } from '../types/greenApi.types'
+
 import { checkAccount, errorMessage, sendMessage } from '../api/greenApi'
 import { mapIncomingMessage } from '../api/notification'
 import { pollNotifications } from '../api/pollNotifications'
-import type { Chat, Message } from '../types/message.types'
 import { normalizePhone } from '../utils/validation'
+
+import type { Credentials } from '../types/greenApi.types'
+import type { Chat, Message } from '../types/message.types'
 
 export function useChat(credentials: Credentials) {
     const [chats, setChats] = useState<Chat[]>([])
@@ -18,6 +20,7 @@ export function useChat(credentials: Credentials) {
     const [sendErrors, setSendErrors] = useState<
         Record<string, string | undefined>
     >({})
+
     const sendController = useRef<AbortController | null>(null)
     const openController = useRef<AbortController | null>(null)
 
@@ -26,12 +29,15 @@ export function useChat(credentials: Credentials) {
             credentials,
             (notification) => {
                 const incoming = mapIncomingMessage(notification.body)
+
                 if (!incoming) return
+
                 setChats((current) =>
                     current.some((chat) => chat.id === incoming.chat.id)
                         ? current
                         : [...current, incoming.chat],
                 )
+
                 setMessages((current) =>
                     current.some(
                         (message) =>
@@ -47,6 +53,7 @@ export function useChat(credentials: Credentials) {
                 setIsReceiving(!error)
             },
         )
+
         return () => {
             stop()
             sendController.current?.abort()
@@ -56,19 +63,25 @@ export function useChat(credentials: Credentials) {
 
     async function openChat(input: string) {
         if (openController.current) return
+
         const controller = new AbortController()
         openController.current = controller
+
         setChatError(null)
         setIsOpening(true)
+
         try {
             const phone = normalizePhone(input)
             const existing = chats.find((chat) => chat.phone === phone)
             const id =
                 existing?.id ??
                 (await checkAccount(credentials, phone, controller.signal))
+
             if (controller.signal.aborted) return
+
             setChats((current) => {
                 const chat = current.find((item) => item.id === id)
+
                 return chat
                     ? current.map((item) =>
                           item.id === id ? { ...item, phone } : item,
@@ -80,6 +93,7 @@ export function useChat(credentials: Credentials) {
             if (!controller.signal.aborted) setChatError(errorMessage(error))
         } finally {
             if (!controller.signal.aborted) setIsOpening(false)
+
             if (openController.current === controller)
                 openController.current = null
         }
@@ -87,6 +101,7 @@ export function useChat(credentials: Credentials) {
 
     async function handleSendMessage(input: string): Promise<boolean> {
         const text = input.trim()
+
         if (
             !activeChatId ||
             !text ||
@@ -94,10 +109,13 @@ export function useChat(credentials: Credentials) {
             sendController.current
         )
             return false
+
         const controller = new AbortController()
         sendController.current = controller
+
         const localId = crypto.randomUUID()
         const chatId = activeChatId
+
         setIsSending(true)
         setSendErrors((current) => ({ ...current, [chatId]: undefined }))
         setMessages((current) => [
@@ -111,13 +129,16 @@ export function useChat(credentials: Credentials) {
                 status: 'sending',
             },
         ])
+
         try {
             const response = await sendMessage(
                 credentials,
                 { chatId, message: text },
                 controller.signal,
             )
+
             if (controller.signal.aborted) return false
+
             setMessages((current) =>
                 current.map((message) =>
                     message.id === localId
@@ -129,6 +150,7 @@ export function useChat(credentials: Credentials) {
                         : message,
                 ),
             )
+
             return true
         } catch (error) {
             if (!controller.signal.aborted) {
@@ -139,14 +161,17 @@ export function useChat(credentials: Credentials) {
                             : message,
                     ),
                 )
+
                 setSendErrors((current) => ({
                     ...current,
                     [chatId]: `${errorMessage(error)} Отправка не подтверждена. Перед повтором проверьте Telegram, чтобы избежать дубля.`,
                 }))
             }
+
             return false
         } finally {
             if (!controller.signal.aborted) setIsSending(false)
+
             if (sendController.current === controller)
                 sendController.current = null
         }

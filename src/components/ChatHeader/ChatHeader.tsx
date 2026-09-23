@@ -1,4 +1,5 @@
 import type { Chat } from '../../types/message.types'
+
 import styles from './ChatHeader.module.css'
 
 interface ChatHeaderProps {
@@ -25,8 +26,10 @@ export function ChatHeader({
                     ←
                 </button>
             )}
+
             <div>
                 <h2>{activeChat?.title ?? 'Ваши разговоры'}</h2>
+
                 <p role="status" className={styles.connection}>
                     {hasReceiveError
                         ? 'Получение приостановлено'
@@ -35,6 +38,7 @@ export function ChatHeader({
                           : 'Подключаем получение…'}
                 </p>
             </div>
+
             <span className={styles.badge}>TELEGRAM</span>
         </header>
     )

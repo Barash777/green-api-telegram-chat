@@ -1,4 +1,5 @@
 import { useRef, useState, type SubmitEvent } from 'react'
+
 import styles from './MessageInput.module.css'
 import shared from '../shared.module.css'
 
@@ -10,12 +11,17 @@ export function MessageInput({
     isSending: boolean
 }) {
     const [text, setText] = useState('')
+
     const input = useRef<HTMLTextAreaElement>(null)
     const submitting = useRef(false)
+
     async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
+
         if (submitting.current || isSending || !text.trim()) return
+
         submitting.current = true
+
         try {
             if (await onSend(text)) setText('')
         } finally {
@@ -23,11 +29,13 @@ export function MessageInput({
             input.current?.focus()
         }
     }
+
     return (
         <form className={styles.composer} onSubmit={handleSubmit}>
             <label className={shared.srOnly} htmlFor="message">
                 Сообщение
             </label>
+
             <textarea
                 id="message"
                 ref={input}
@@ -48,6 +56,7 @@ export function MessageInput({
                     }
                 }}
             />
+
             <button
                 className={styles.send}
                 disabled={isSending || !text.trim()}
@@ -55,6 +64,7 @@ export function MessageInput({
             >
                 {isSending ? '…' : '↑'}
             </button>
+
             <small>Enter — отправить · Shift + Enter — новая строка</small>
         </form>
     )

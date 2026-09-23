@@ -18,7 +18,7 @@ export interface Notification {
     body: unknown
 }
 
-type YesNo = 'yes' | 'no';
+type YesNo = 'yes' | 'no'
 
 export interface NotificationSettings {
     webhookUrl: string
