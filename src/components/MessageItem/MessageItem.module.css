@@ -1,0 +1,46 @@
+.message {
+    width: fit-content;
+    max-width: 82%;
+    padding: 12px 14px 9px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px #34505c0d;
+}
+
+.incoming {
+    background: white;
+    border-bottom-left-radius: 4px;
+}
+
+.outgoing {
+    margin-left: auto;
+    background: #d8f3d6;
+    border-bottom-right-radius: 4px;
+}
+
+.message p {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin: 0 0 6px;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.message footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    font-size: 10px;
+    color: #6b8480;
+}
+
+.message footer.failed {
+    color: #a44237;
+}
+
+@media (max-width: 700px) {
+    .message {
+        max-width: 90%;
+    }
+}

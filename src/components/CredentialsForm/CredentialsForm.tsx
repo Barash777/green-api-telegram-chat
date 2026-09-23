@@ -1,84 +1,43 @@
-import { useEffect, useRef, useState, type SubmitEvent } from 'react'
-import type { Credentials } from '../api/greenApi.types'
-import {
-    DEFAULT_API_URL,
-    errorMessage,
-    verifyCredentials,
-    setNotificationSettings,
-    waitForNotificationSettings,
-} from '../api/greenApi'
-import { normalizeApiUrl } from '../utils/validation'
-import styles from './Chat.module.css'
+import type { SubmitEvent } from 'react'
+import type { Credentials } from '../../types/greenApi.types'
+import { DEFAULT_API_URL } from '../../api/greenApi'
+import { useConnection } from '../../hooks/useConnection'
+import styles from './CredentialsForm.module.css'
+import shared from '../shared.module.css'
 
-export function CredentialsForm({
-    onConnect,
-}: {
+interface CredentialsFormProps {
     onConnect: (credentials: Credentials) => void
-}) {
-    const [error, setError] = useState<string | null>(null)
-    const [connectionStage, setConnectionStage] = useState<
-        'idle' | 'checking' | 'settings' | 'waiting'
-    >('idle')
-    const isConnecting = connectionStage !== 'idle'
-    const request = useRef<AbortController | null>(null)
-    useEffect(() => () => request.current?.abort(), [])
+}
 
+export function CredentialsForm({ onConnect }: CredentialsFormProps) {
+    const { error, connectionStage, isConnecting, connect } =
+        useConnection(onConnect)
     async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
-        if (request.current) return
         const form = new FormData(event.currentTarget)
-        const controller = new AbortController()
-        request.current = controller
-        setConnectionStage('checking')
-        setError(null)
-        try {
-            const credentials: Credentials = {
-                apiUrl: normalizeApiUrl(
+        await connect(
+            {
+                apiUrl:
                     String(form.get('apiUrl') ?? '').trim() || DEFAULT_API_URL,
-                ),
-                idInstance: String(form.get('idInstance') ?? '').trim(),
-                apiTokenInstance: String(
-                    form.get('apiTokenInstance') ?? '',
-                ).trim(),
-            }
-            if (
-                !/^\d+$/.test(credentials.idInstance) ||
-                !credentials.apiTokenInstance ||
-                /\s/.test(credentials.apiTokenInstance)
-            )
-                throw new Error(
-                    'Проверьте idInstance и apiTokenInstance: пробелы не допускаются.',
-                )
-            await verifyCredentials(credentials, controller.signal)
-            if (controller.signal.aborted) return
-            if (form.has('configureNotifications')) {
-                setConnectionStage('settings')
-                await setNotificationSettings(credentials, controller.signal)
-                if (controller.signal.aborted) return
-                setConnectionStage('waiting')
-                await waitForNotificationSettings(
-                    credentials,
-                    controller.signal,
-                )
-            }
-            if (!controller.signal.aborted) onConnect(credentials)
-        } catch (error) {
-            if (!controller.signal.aborted) setError(errorMessage(error))
-        } finally {
-            if (!controller.signal.aborted) setConnectionStage('idle')
-            if (request.current === controller) request.current = null
-        }
+                idInstance: String(form.get('idInstance') ?? ''),
+                apiTokenInstance: String(form.get('apiTokenInstance') ?? ''),
+            },
+            form.has('configureNotifications'),
+        )
     }
 
     return (
         <main className={styles.login}>
             <section className={styles.loginCard}>
-                <div className={styles.logo} aria-hidden="true">
+                <div
+                    className={`${shared.logo} ${styles.loginLogo}`}
+                    aria-hidden="true"
+                >
                     ↗
                 </div>
-                <p className={styles.eyebrow}>GREEN-API / TELEGRAM</p>
+                <p className={shared.eyebrow}>GREEN-API / TELEGRAM</p>
                 <h1>Ближе к общению.</h1>
-                <p className={styles.muted}>
+                <p className={shared.muted}>
                     Подключите свой аккаунт Telegram и начните переписку.
                 </p>
                 <form className={styles.form} onSubmit={handleSubmit}>
@@ -131,11 +90,11 @@ export function CredentialsForm({
                         Установить настройки для получения сообщения
                     </label>
                     {error && (
-                        <p role="alert" className={styles.error}>
+                        <p role="alert" className={shared.error}>
                             {error}
                         </p>
                     )}
-                    <button className={styles.primary} disabled={isConnecting}>
+                    <button className={shared.primary} disabled={isConnecting}>
                         {
                             {
                                 idle: 'Подключиться →',
@@ -146,13 +105,13 @@ export function CredentialsForm({
                         }
                     </button>
                     {connectionStage === 'waiting' && (
-                        <p role="status" className={styles.hint}>
+                        <p role="status" className={shared.hint}>
                             Настройки сохранены. Инстанс перезапускается;
                             подключение может занять до 5 минут.
                         </p>
                     )}
                 </form>
-                <p className={styles.hint}>
+                <p className={shared.hint}>
                     Реквизиты доступны в{' '}
                     <a
                         href="https://console.green-api.com/"

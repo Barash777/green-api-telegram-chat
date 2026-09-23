@@ -1,4 +1,4 @@
-import type { Credentials, Notification } from './greenApi.types'
+import type { Credentials, Notification } from '../types/greenApi.types'
 import {
     ApiError,
     deleteNotification,

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import type { Credentials } from './api/greenApi.types'
-import { CredentialsForm } from './components/CredentialsForm'
-import { ChatWorkspace } from './components/ChatWorkspace'
+import type { Credentials } from './types/greenApi.types'
+import { CredentialsForm } from './components/CredentialsForm/CredentialsForm'
+import { ChatWorkspace } from './components/ChatWorkspace/ChatWorkspace'
 
 export default function App() {
     const [credentials, setCredentials] = useState<Credentials | null>(null)

@@ -1,3 +1,5 @@
+import type { Credentials } from '../types/greenApi.types'
+
 export function normalizePhone(input: string): string {
     const phone = input
         .trim()
@@ -36,4 +38,22 @@ export function normalizeApiUrl(input: string): string {
         )
     }
     return url.origin
+}
+
+export function normalizeCredentials(input: Credentials): Credentials {
+    const credentials = {
+        apiUrl: normalizeApiUrl(input.apiUrl),
+        idInstance: input.idInstance.trim(),
+        apiTokenInstance: input.apiTokenInstance.trim(),
+    }
+    if (
+        !/^\d+$/.test(credentials.idInstance) ||
+        !credentials.apiTokenInstance ||
+        /\s/.test(credentials.apiTokenInstance)
+    ) {
+        throw new Error(
+            'Проверьте idInstance и apiTokenInstance: пробелы не допускаются.',
+        )
+    }
+    return credentials
 }

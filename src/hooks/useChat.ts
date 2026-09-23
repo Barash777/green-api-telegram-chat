@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Credentials } from '../api/greenApi.types'
+import type { Credentials } from '../types/greenApi.types'
 import { checkAccount, errorMessage, sendMessage } from '../api/greenApi'
 import { mapIncomingMessage } from '../api/notification'
 import { pollNotifications } from '../api/pollNotifications'
-import type { Chat, Message } from '../types/message'
+import type { Chat, Message } from '../types/message.types'
 import { normalizePhone } from '../utils/validation'
 
-export function useMessages(credentials: Credentials) {
+export function useChat(credentials: Credentials) {
     const [chats, setChats] = useState<Chat[]>([])
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [messages, setMessages] = useState<Message[]>([])
@@ -15,7 +15,9 @@ export function useMessages(credentials: Credentials) {
     const [isSending, setIsSending] = useState(false)
     const [isOpening, setIsOpening] = useState(false)
     const [chatError, setChatError] = useState<string | null>(null)
-    const [sendError, setSendError] = useState<string | null>(null)
+    const [sendErrors, setSendErrors] = useState<
+        Record<string, string | undefined>
+    >({})
     const sendController = useRef<AbortController | null>(null)
     const openController = useRef<AbortController | null>(null)
 
@@ -97,7 +99,7 @@ export function useMessages(credentials: Credentials) {
         const localId = crypto.randomUUID()
         const chatId = activeChatId
         setIsSending(true)
-        setSendError(null)
+        setSendErrors((current) => ({ ...current, [chatId]: undefined }))
         setMessages((current) => [
             ...current,
             {
@@ -137,9 +139,10 @@ export function useMessages(credentials: Credentials) {
                             : message,
                     ),
                 )
-                setSendError(
-                    `${errorMessage(error)} Отправка не подтверждена. Перед повтором проверьте Telegram, чтобы избежать дубля.`,
-                )
+                setSendErrors((current) => ({
+                    ...current,
+                    [chatId]: `${errorMessage(error)} Отправка не подтверждена. Перед повтором проверьте Telegram, чтобы избежать дубля.`,
+                }))
             }
             return false
         } finally {
@@ -159,7 +162,7 @@ export function useMessages(credentials: Credentials) {
         isSending,
         isOpening,
         chatError,
-        sendError,
+        sendError: activeChatId ? (sendErrors[activeChatId] ?? null) : null,
         openChat,
         handleSendMessage,
     }

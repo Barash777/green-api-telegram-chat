@@ -1,0 +1,41 @@
+.send:hover:not(:disabled) {
+    background: #1473a2;
+}
+
+.composer {
+    display: grid;
+    grid-template-columns: 1fr 48px;
+    gap: 10px;
+    padding: 16px max(24px, calc((100% - 760px) / 2)) 20px;
+    align-items: center;
+}
+
+.composer textarea {
+    resize: none;
+    border: 0;
+    box-shadow: 0 1px 3px #34505c0c;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.send {
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 27px;
+}
+
+.composer small {
+    font-size: 10px;
+    color: var(--muted);
+    padding-left: 6px;
+}
+
+@media (max-width: 700px) {
+    .composer {
+        padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+    }
+}

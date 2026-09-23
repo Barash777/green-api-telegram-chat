@@ -2,7 +2,7 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { CredentialsForm } from '../../src/components/CredentialsForm'
+import { CredentialsForm } from '../../src/components/CredentialsForm/CredentialsForm'
 import {
     verifyCredentials,
     setNotificationSettings,

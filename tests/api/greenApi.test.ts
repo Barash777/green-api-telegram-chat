@@ -6,7 +6,7 @@ import {
     sendMessage,
     verifyCredentials,
 } from '../../src/api/greenApi'
-import type { Credentials } from '../../src/api/greenApi.types'
+import type { Credentials } from '../../src/types/greenApi.types'
 
 const credentials: Credentials = {
     apiUrl: 'https://test.green-api.com',

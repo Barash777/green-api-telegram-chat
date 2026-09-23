@@ -1,5 +1,6 @@
 import { useRef, useState, type SubmitEvent } from 'react'
-import styles from './Chat.module.css'
+import styles from './MessageInput.module.css'
+import shared from '../shared.module.css'
 
 export function MessageInput({
     onSend,
@@ -24,7 +25,7 @@ export function MessageInput({
     }
     return (
         <form className={styles.composer} onSubmit={handleSubmit}>
-            <label className={styles.srOnly} htmlFor="message">
+            <label className={shared.srOnly} htmlFor="message">
                 Сообщение
             </label>
             <textarea

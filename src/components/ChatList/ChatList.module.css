@@ -1,0 +1,63 @@
+.chatList {
+    padding: 24px 12px;
+    flex: 1;
+}
+
+.chatList > p {
+    padding-inline: 12px;
+}
+
+.chatButton {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    border: 0;
+    padding: 14px 12px;
+    border-radius: 12px;
+    text-align: left;
+    background: transparent;
+    color: inherit;
+}
+
+.chatButton:hover {
+    background: #f4f8fa;
+}
+
+.chatButton.selected {
+    background: #eaf4fa;
+}
+
+.avatar {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: #3482ac;
+    background: #d7eaf5;
+    font-size: 18px;
+}
+
+.chatButton > span:last-child {
+    min-width: 0;
+}
+
+.chatButton strong,
+.chatButton small {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.chatButton strong {
+    font-size: 14px;
+}
+
+.chatButton small {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 12px;
+}

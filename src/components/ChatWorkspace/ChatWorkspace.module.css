@@ -1,0 +1,79 @@
+.workspace {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    height: 100dvh;
+    max-width: 1600px;
+    margin: auto;
+    border-inline: 1px solid var(--border);
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-right: 1px solid var(--border);
+    overflow: auto;
+    min-height: 0;
+}
+
+.sidebarHeader {
+    display: flex;
+    gap: 12px;
+    padding: 28px 24px;
+    align-items: center;
+}
+
+.sidebarHeader h1 {
+    font-size: 21px;
+    margin: 0;
+    letter-spacing: -0.6px;
+}
+
+.sidebarHeader span {
+    font-size: 11px;
+}
+
+.sidebarFooter {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+}
+
+.sidebarFooter p {
+    margin: 0 0 10px;
+}
+
+.textButton {
+    border: 0;
+    background: transparent;
+    color: #1676a6;
+    padding: 6px 0;
+    font-size: 13px;
+}
+
+.conversation {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    background: #e6eef0;
+    background-image: radial-gradient(
+        ellipse at 15% 80%,
+        #dbe9e2,
+        transparent 70%
+    );
+}
+
+@media (max-width: 700px) {
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+    .conversation {
+        display: none;
+    }
+    .hasChat .conversation {
+        display: flex;
+    }
+    .hasChat .sidebar {
+        display: none;
+    }
+}

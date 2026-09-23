@@ -2,11 +2,11 @@
 import { act, StrictMode, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { useMessages } from '../../src/hooks/useMessages'
-import { ChatWorkspace } from '../../src/components/ChatWorkspace'
-import type { Message } from '../../src/types/message'
+import { useChat } from '../../src/hooks/useChat'
+import { ChatWorkspace } from '../../src/components/ChatWorkspace/ChatWorkspace'
+import type { Message } from '../../src/types/message.types'
 
-vi.mock('../../src/hooks/useMessages')
+vi.mock('../../src/hooks/useChat')
 
 const credentials = {
     apiUrl: 'https://test.green-api.com',
@@ -41,7 +41,7 @@ let root: Root
 
 beforeEach(() => {
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
-    vi.mocked(useMessages).mockImplementation(function useMockMessages() {
+    vi.mocked(useChat).mockImplementation(function useMockChat() {
         const [activeChatId, setActiveChatId] = useState<string | null>('first')
         return {
             chats,

@@ -1,4 +1,4 @@
-import type { Chat, Message } from '../types/message'
+import type { Chat, Message } from '../types/message.types'
 import { ApiError, isRecord } from './greenApi'
 
 export function mapIncomingMessage(

@@ -7,7 +7,7 @@ import type {
     NotificationSettings,
     SendMessageRequest,
     SendMessageResponse,
-} from './greenApi.types'
+} from '../types/greenApi.types'
 
 export class ApiError extends Error {
     readonly status: number

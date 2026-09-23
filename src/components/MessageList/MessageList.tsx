@@ -1,23 +1,14 @@
 import { useLayoutEffect, useRef } from 'react'
-import type { Message } from '../types/message'
-import styles from './Chat.module.css'
+import { MessageItem } from '../MessageItem/MessageItem'
+import type { Message } from '../../types/message.types'
+import styles from './MessageList.module.css'
+import shared from '../shared.module.css'
 
-const timeFormatter = new Intl.DateTimeFormat('ru', {
-    hour: '2-digit',
-    minute: '2-digit',
-})
 const dateFormatter = new Intl.DateTimeFormat('ru', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
 })
-const statuses = {
-    sending: 'Отправляется…',
-    queued: 'В очереди GREEN-API',
-    failed: 'Отправка не подтверждена',
-    received: '',
-}
-
 export function MessageList({ messages }: { messages: Message[] }) {
     const container = useRef<HTMLDivElement>(null)
     const nearBottom = useRef(true)
@@ -46,8 +37,8 @@ export function MessageList({ messages }: { messages: Message[] }) {
             }}
         >
             {messages.length === 0 && (
-                <div className={styles.empty}>
-                    <span className={styles.emptyIcon} aria-hidden="true">
+                <div className={`${shared.empty} ${styles.emptyState}`}>
+                    <span className={shared.emptyIcon} aria-hidden="true">
                         ↗
                     </span>
                     <h2>Начните разговор</h2>
@@ -66,34 +57,7 @@ export function MessageList({ messages }: { messages: Message[] }) {
                         {(!previous ||
                             dateFormatter.format(previous.timestamp) !==
                                 date) && <p className={styles.date}>{date}</p>}
-                        <article
-                            className={`${styles.message} ${message.direction === 'outgoing' ? styles.outgoing : styles.incoming}`}
-                        >
-                            <span className={styles.srOnly}>
-                                {message.direction === 'outgoing'
-                                    ? 'Вы: '
-                                    : 'Собеседник: '}
-                            </span>
-                            <p>{message.text}</p>
-                            <footer
-                                className={
-                                    message.status === 'failed'
-                                        ? styles.failed
-                                        : undefined
-                                }
-                            >
-                                <time
-                                    dateTime={new Date(
-                                        message.timestamp,
-                                    ).toISOString()}
-                                >
-                                    {timeFormatter.format(message.timestamp)}
-                                </time>
-                                {message.direction === 'outgoing' && (
-                                    <span>{statuses[message.status]}</span>
-                                )}
-                            </footer>
-                        </article>
+                        <MessageItem message={message} />
                     </div>
                 )
             })}
