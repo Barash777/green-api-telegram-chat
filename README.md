@@ -81,3 +81,13 @@ tests/
 - [CheckAccount](https://green-api.com/telegram/docs/api/service/CheckAccount/)
 - [SendMessage](https://green-api.com/telegram/docs/api/sending/SendMessage/)
 - [Получение уведомлений через HTTP API](https://green-api.com/telegram/docs/api/receiving/technology-http-api/)
+
+## Покрытие тестами
+
+```bash
+npm run test:coverage
+```
+
+Команда запускает тесты и выводит покрытие строк, ветвлений, функций и инструкций. Подробный HTML-отчёт: `coverage/index.html`; сводка в JSON: `coverage/coverage-summary.json`. Используется [V8-провайдер Vitest](https://vitest.dev/guide/coverage.html).
+
+В отчёт входят все `.ts` и `.tsx` файлы из `src`, включая не импортированные тестами. Исключены декларации типов и точка монтирования `main.tsx`. Стили не измеряются. Папка `coverage` не попадает в Git.

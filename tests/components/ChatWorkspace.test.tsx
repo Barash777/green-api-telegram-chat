@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { act, StrictMode, useState } from 'react'
-import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
+
+import { setupComponentTest } from '../helpers/component'
 
 import { useChat } from '../../src/hooks/useChat'
 import { ChatWorkspace } from '../../src/components/ChatWorkspace/ChatWorkspace'
@@ -41,11 +42,9 @@ const messages: Message[] = [
     },
 ]
 
-let container: HTMLDivElement
-let root: Root
+const view = setupComponentTest()
 
 beforeEach(() => {
-    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
     vi.mocked(useChat).mockImplementation(function useMockChat() {
         const [activeChatId, setActiveChatId] = useState<string | null>('first')
 
@@ -64,47 +63,31 @@ beforeEach(() => {
             handleSendMessage: vi.fn().mockResolvedValue(true),
         }
     })
-    container = document.createElement('div')
-    document.body.append(container)
-    root = createRoot(container)
-})
-
-afterEach(async () => {
-    await act(async () => root.unmount())
-
-    container.remove()
-    vi.restoreAllMocks()
-    vi.unstubAllGlobals()
 })
 
 it('keeps exactly one message list and composer when switching between three chats', async () => {
     const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    await act(async () => {
-        root.render(
-            <StrictMode>
-                <ChatWorkspace
-                    credentials={credentials}
-                    onDisconnect={() => {}}
-                />
-            </StrictMode>,
-        )
-    })
+    await view.render(
+        <StrictMode>
+            <ChatWorkspace credentials={credentials} onDisconnect={() => {}} />
+        </StrictMode>,
+    )
 
     for (const id of ['empty', 'third', 'first', 'third', 'empty', 'first']) {
         const chat = chats.find((item) => item.id === id)!
         const button = Array.from(
-            container.querySelectorAll('nav button'),
+            view.container.querySelectorAll('nav button'),
         ).find((item) => item.textContent?.includes(chat.title))
 
         expect(button).toBeDefined()
 
         await act(async () => (button as HTMLButtonElement).click())
 
-        expect(container.querySelectorAll('[role="log"]')).toHaveLength(1)
-        expect(container.querySelectorAll('textarea')).toHaveLength(1)
+        expect(view.container.querySelectorAll('[role="log"]')).toHaveLength(1)
+        expect(view.container.querySelectorAll('textarea')).toHaveLength(1)
 
-        const conversation = container.querySelector(
+        const conversation = view.container.querySelector(
             'section[aria-label="Чат"]',
         )!
 

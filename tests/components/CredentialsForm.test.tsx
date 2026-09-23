@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { act } from 'react'
-import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
+
+import { setupComponentTest } from '../helpers/component'
 
 import { CredentialsForm } from '../../src/components/CredentialsForm/CredentialsForm'
 import {
@@ -17,22 +18,10 @@ vi.mock('../../src/api/greenApi', async (importOriginal) => ({
     waitForNotificationSettings: vi.fn().mockResolvedValue(undefined),
 }))
 
-let container: HTMLDivElement
-let root: Root
+const view = setupComponentTest()
 
-beforeEach(() => {
-    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
-    container = document.createElement('div')
-    document.body.append(container)
-    root = createRoot(container)
-})
-
-afterEach(async () => {
-    await act(async () => root.unmount())
-
-    container.remove()
+afterEach(() => {
     vi.clearAllMocks()
-    vi.unstubAllGlobals()
 })
 
 it.each([
@@ -43,17 +32,17 @@ it.each([
     async (apiUrl, expectedUrl) => {
         const onConnect = vi.fn()
 
-        await act(async () =>
-            root.render(<CredentialsForm onConnect={onConnect} />),
-        )
+        await view.render(<CredentialsForm onConnect={onConnect} />)
 
         expect(
             Array.from(
-                container.querySelectorAll<HTMLInputElement>('input[required]'),
+                view.container.querySelectorAll<HTMLInputElement>(
+                    'input[required]',
+                ),
             ).map((input) => input.name),
         ).toEqual(['idInstance', 'apiTokenInstance'])
 
-        const form = container.querySelector('form')!
+        const form = view.container.querySelector('form')!
         const serverInput =
             form.querySelector<HTMLInputElement>('[name="apiUrl"]')!
 
@@ -132,11 +121,9 @@ it.each(['credentials', 'settings', 'readiness'] as const)(
 
         const onConnect = vi.fn()
 
-        await act(async () =>
-            root.render(<CredentialsForm onConnect={onConnect} />),
-        )
+        await view.render(<CredentialsForm onConnect={onConnect} />)
 
-        const form = container.querySelector('form')!
+        const form = view.container.querySelector('form')!
 
         form.querySelector<HTMLInputElement>('[name="idInstance"]')!.value =
             '4100000000'
@@ -154,9 +141,9 @@ it.each(['credentials', 'settings', 'readiness'] as const)(
         await act(async () => form.requestSubmit())
 
         expect(onConnect).not.toHaveBeenCalled()
-        expect(container.querySelector('[role="alert"]')?.textContent).toBe(
-            'Ошибка подключения',
-        )
+        expect(
+            view.container.querySelector('[role="alert"]')?.textContent,
+        ).toBe('Ошибка подключения')
         expect(form.querySelector('button')?.disabled).toBe(false)
 
         if (stage === 'credentials')
@@ -172,11 +159,9 @@ it.each([false, true])(
     async (toggle) => {
         const onConnect = vi.fn()
 
-        await act(async () =>
-            root.render(<CredentialsForm onConnect={onConnect} />),
-        )
+        await view.render(<CredentialsForm onConnect={onConnect} />)
 
-        const form = container.querySelector('form')!
+        const form = view.container.querySelector('form')!
         const checkbox = form.querySelector<HTMLInputElement>(
             '[name="configureNotifications"]',
         )!
